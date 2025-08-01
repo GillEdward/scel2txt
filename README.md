@@ -2,22 +2,23 @@
 
 ### 简介
 
-该项目参考 [scel2txt](https://github.com/lewang0/scel2txt ) ，在此表示感谢
+该项目参考 [scel2txt](https://github.com/lewang0/scel2txt) 和 [libscel](https://github.com/fkxxyz/libscel) ，在此表示感谢
 
 ### 用法
 
 #### 直接输出至文本
 
 ```shell
-scel.py [file] [dest]
+scel2txt.py <input> <frequence>
 ```
 
-输出的 dest 格式为 "词语\t拼音\t优先级"
+输出格式为 "词语\t拼音\t词频"
 
 参数详解:
 
-- file	搜狗细胞词库文件，格式为 .scel 如果不指定则会自动从官网获取“网络流行新词【官方推荐】.scel”
-- dest	输出的文件，如果不指定则会输出到标准输出
+- input    .scel文件路径，或含有.scel文件的文件夹
+  （输出文件为同路径下的同名.txt文件）
+- frequence    为本次转换指定统一词频
 
 #### 当成库使用
 
@@ -35,20 +36,3 @@ print("一共有 %d 个词汇" % len(s.word_list))
 print("第一个词是 %s" % str(s.word_list[0]))
 print("一共有 %d 个被删除的词汇" % len(s.del_words))
 ```
-
-从官网获取流行词汇
-
-```python
-import scel
-s = scel.scel()
-data = scel.getInternetPopularNewWords()
-s.loads(data)
-print(s.title)
-print(s.category)
-print(s.description)
-print(s.samples)
-print("一共有 %d 个词汇" % len(s.word_list))
-print("第一个词是 %s" % str(s.word_list[0]))
-print("一共有 %d 个被删除的词汇" % len(s.del_words))
-```
-
