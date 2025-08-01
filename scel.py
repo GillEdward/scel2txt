@@ -4,6 +4,7 @@
 import argparse
 import struct
 import sys
+import os
 
 class FormatError(Exception):
     def __init__(self, msg):
@@ -147,57 +148,50 @@ class scel:
         data = open(file_path, 'rb').read()
         return self.loads(data)
 
-
-def getInternetPopularNewWords():
-    """
-        从搜狗输入法细胞词库官网下载网络流行新词【官方推荐】
-        网址是 https://pinyin.sogou.com/dict/detail/index/4
-        下载地址为 https://pinyin.sogou.com/d/dict/download_cell.php?id=4&name=%E7%BD%91%E7%BB%9C%E6%B5%81%E8%A1%8C%E6%96%B0%E8%AF%8D%E3%80%90%E5%AE%98%E6%96%B9%E6%8E%A8%E8%8D%90%E3%80%91&f=detail
-        返回： scel文件的二进制 bytes
-    """
-    import requests
-    url = "https://pinyin.sogou.com/d/dict/download_cell.php"
-    params = {
-        "id": 4,
-        "name": "网络流行新词【官方推荐】",
-        "f": "detal",
-    }
-    r = requests.get(url, params = params)
-    return r.content
-
-
-def main(args):
+def process_file(path, frequence):
     s = scel()
-
-    # 读取 scel
-    if args.file is None:
-        s.loads(getInternetPopularNewWords())
-    else:
-        s.load(args.file)
+    s.load(path) # 读取 scel
 
     # 生成 text
     text = ''
     for w in s.word_list:
-        text += w[0] + '\t' + ' '.join(map(lambda key:s.py_map[key], w[1])) + '\t' + str(1) + '\n'
+        text += w[0] + '\t' + ' '.join(map(lambda key:s.py_map[key], w[1])) + '\t' + str(frequence) + '\n'
     
     # 输出
-    if args.dest is None:
-        fp = sys.stdout
-    else:
-        fp = open(args.dest, 'w')
+    fp = open(path.replace(".scel", ".txt"), 'w') # 输出到同名.txt文件
     fp.write(text)
+
+def process_directory(directory_path, frequence):
+    """处理目录中的所有.scel文件"""
+    for root, dirs, files in os.walk(directory_path):
+        for file in files:
+            if file.lower().endswith('.scel'):
+                file_path = os.path.join(root, file)
+                process_file(file_path, frequence)
+
+def main(args):
+    path = args.input
+    
+    if os.path.isfile(path) and path.lower().endswith('.scel'):
+        process_file(path, args.frequence)
+    elif os.path.isdir(path):
+        process_directory(path, args.frequence)
+    else:
+        print("错误: 请提供有效的.scel文件路径或文件夹路径")
+        sys.exit(1)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
         description = "搜狗细胞词库（.scel）转换工具，" + \
-        '输出格式为 "词语\\t拼音\\t优先级"')
-    parser.add_argument('file', help = \
-        '搜狗细胞词库文件，格式为 .scel ' + \
-        '如果不指定则会自动从官网获取“网络流行新词【官方推荐】.scel”',
-        nargs='?')
-    parser.add_argument('dest', help = \
-        '输出的文件，如果不指定则会输出到标准输出',
-        nargs='?')
+        '输出格式为 "词语\\t拼音\\t优先级"')    # 添加必须参数
+
+    parser.add_argument('input', help = '搜狗细胞词库文件.scel',
+        nargs = '?')
+
+    parser.add_argument('frequence', help = '该词库中所有词语的统一词频，默认为 0',
+        nargs = '?',
+        default = '0')
+
     args = parser.parse_args()
     exit(main(args))
 
