@@ -18,7 +18,7 @@ scel2txt.py <input> <frequence>
 
 - input    .scel文件路径，或含有.scel文件的文件夹
   （输出文件为同路径下的同名.txt文件）
-- frequence    为本次转换指定统一词频
+- frequence    为本次转换指定统一词频，可缺省，默认为0
 
 #### 当成库使用
 
