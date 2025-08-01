@@ -149,6 +149,8 @@ class scel:
         return self.loads(data)
 
 def process_file(path, frequence):
+    print(f"正在处理文件: {path}")
+
     s = scel()
     s.load(path) # 读取 scel
 
